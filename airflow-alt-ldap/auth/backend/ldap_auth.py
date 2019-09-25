@@ -123,35 +123,38 @@ class LdapUser(models.User):
         conn = get_ldap_connection(configuration.get("ldap", "bind_user"),
                                    configuration.get("ldap", "bind_password"))
         try:
+            LOG.debug("Trying SuperUser..")
             self.superuser = group_contains_user(conn,
                                                  configuration.get("ldap", "group_basedn"),
                                                  configuration.get("ldap", "superuser_filter"),
                                                  configuration.get("ldap", "group_member_attr"),
                                                  user.username)
-            LOG.debug("Trying SuperUser..")
+            LOG.debug("Value returned: %s", self.superuser)
         except AirflowConfigException:
             self.superuser = True
             LOG.debug("Missing configuration for superuser settings.  Skipping.")
 
         try:
+            LOG.debug("Trying Data Profiler..")
             self.data_profiler = group_contains_user(conn,
                                                      configuration.get("ldap", "group_basedn"),
                                                      configuration.get("ldap", "data_profiler_filter"),
                                                      configuration.get("ldap", "group_member_attr"),
                                                      user.username)
-            LOG.debug("Trying Data Profiler..")
+            LOG.debug("Value returned: %s", self.data_profiler)
         except AirflowConfigException:
             self.data_profiler = True
             LOG.debug("Missing configuration for dataprofiler settings. Skipping")
 
         # Load the ldap group(s) a user belongs to
         try:
+            LOG.debug("Trying LDAP Groups..")
             self.ldap_groups = groups_user(conn,
                                            configuration.get("ldap", "group_basedn"),
                                            configuration.get("ldap", "group_filter"),
                                            configuration.get("ldap", "group_member_attr"),
                                            user.username)
-            LOG.debug("Trying LDAP Groups..")
+            LOG.debug("Value returned: %s", self.ldap_groups)
         except AirflowConfigException:
             LOG.debug("Missing configuration for ldap settings. Skipping")
 
@@ -166,6 +169,8 @@ class LdapUser(models.User):
             username
         )
 
+        LOG.debug("try_login search_filter: %s", search_filter)
+        
         search_scopes = {
             "LEVEL": LEVEL,
             "SUBTREE": SUBTREE,
