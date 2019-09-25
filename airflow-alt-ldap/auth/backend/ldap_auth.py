@@ -238,7 +238,7 @@ def load_user(userid):
 
 
 def login(self, request):
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         flash("You are already logged in")
         return redirect(url_for('admin.index'))
 
